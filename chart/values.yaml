@@ -1,0 +1,94 @@
+# =============================================================================
+# Nebari Integration
+# =============================================================================
+# Creates a NebariApp CRD that configures routing, TLS, and auth via nebari-operator.
+# Set enabled: true when deploying on a Nebari cluster.
+nebariapp:
+  enabled: false
+  # hostname: rayserve.nebari.example.com  # Required when serve.enabled is true
+  serve:
+    enabled: true  # Set to false to keep the serve endpoint internal-only
+  dashboard:
+    enabled: true
+    # hostname: ray-dashboard.nebari.example.com  # Separate hostname for dashboard
+  service:
+    name: ""   # Defaults to <release>-<chart>-serve-svc (serve) or -head-svc (dashboard)
+    servePort: 8000
+    dashboardPort: 8265
+  auth:
+    enabled: false
+    provider: keycloak
+    provisionClient: true
+    redirectURI: /oauth2/callback
+    scopes:
+      - openid
+      - profile
+      - email
+
+  gateway: public
+
+# =============================================================================
+# KubeRay Operator
+# =============================================================================
+kuberay-operator: {}
+
+# =============================================================================
+# Ray Serve Applications
+# =============================================================================
+# Declarative Serve applications deployed via RayService serveConfigV2.
+# Each application must specify an import_path to a module:app baked into
+# the Ray image. For production, build a custom image with your model code.
+#
+# Example:
+#   serveApplications:
+#     - name: my-model
+#       route_prefix: /predict
+#       import_path: myapp.model:app
+#       deployments:
+#         - name: MyModel
+#           num_replicas: 2
+serveApplications: []
+
+# =============================================================================
+# Ray Image
+# =============================================================================
+# Used for both head and worker nodes. For production, build a custom image
+# with your model code and dependencies pre-installed.
+image:
+  repository: rayproject/ray
+  tag: 2.43.0
+
+# =============================================================================
+# Ray Head
+# =============================================================================
+head:
+  containerEnv: []
+  resources:
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+
+# =============================================================================
+# Ray Workers
+# =============================================================================
+worker:
+  replicas: 1
+  minReplicas: 1
+  maxReplicas: 1
+  containerEnv: []
+  resources:
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+
+# =============================================================================
+# Overrides
+# =============================================================================
+nameOverride: ""
+fullnameOverride: ""

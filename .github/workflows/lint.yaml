@@ -1,0 +1,42 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Update chart dependencies
+        run: helm dependency update chart/
+
+      - name: Lint chart
+        run: helm lint chart/
+
+      - name: Template chart (NebariApp disabled)
+        run: helm template test chart/ --set nebariapp.enabled=false
+
+      - name: Template chart (NebariApp enabled)
+        run: |
+          helm template test chart/ \
+            --set nebariapp.enabled=true \
+            --set nebariapp.hostname=test.example.com \
+            --set nebariapp.dashboard.enabled=true \
+            --set nebariapp.dashboard.hostname=dashboard.example.com
+
+      - name: Template chart (NebariApp + auth enabled)
+        run: |
+          helm template test chart/ \
+            --set nebariapp.enabled=true \
+            --set nebariapp.hostname=test.example.com \
+            --set nebariapp.dashboard.enabled=true \
+            --set nebariapp.dashboard.hostname=dashboard.example.com \
+            --set nebariapp.auth.enabled=true

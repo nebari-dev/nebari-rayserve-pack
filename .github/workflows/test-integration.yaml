@@ -1,0 +1,214 @@
+name: Integration Test (NebariApp)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - "chart/**"
+      - "dev/**"
+      - ".github/workflows/test-integration.yaml"
+
+jobs:
+  nebariapp-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLUSTER_NAME: rayserve-integration
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout nebari-operator (for dev/scripts)
+        uses: actions/checkout@v4
+        with:
+          repository: nebari-dev/nebari-operator
+          path: nebari-operator
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: rayserve-integration
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      # ============================================================
+      # Infrastructure: MetalLB
+      # ============================================================
+      - name: Install MetalLB
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
+          kubectl wait --namespace metallb-system \
+            --for=condition=available deployment/controller \
+            --timeout=90s
+          kubectl wait --namespace metallb-system \
+            --for=jsonpath='{.status.numberReady}'=1 \
+            daemonset/speaker \
+            --timeout=90s
+
+      - name: Configure MetalLB IP pool
+        run: |
+          KIND_NET_CIDR=$(docker network inspect kind -f '{{range .IPAM.Config}}{{.Subnet}}{{"\n"}}{{end}}' | grep '\.' | head -n1)
+          BASE_IP=$(echo "${KIND_NET_CIDR}" | awk -F. '{print $1"."$2}')
+          kubectl apply -f - <<EOF
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: kind-pool
+            namespace: metallb-system
+          spec:
+            addresses:
+              - ${BASE_IP}.255.200-${BASE_IP}.255.250
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: kind-l2
+            namespace: metallb-system
+          spec:
+            ipAddressPools:
+              - kind-pool
+          EOF
+
+      # ============================================================
+      # Infrastructure: Envoy Gateway, cert-manager, Keycloak
+      # ============================================================
+      - name: Install foundational services
+        run: nebari-operator/dev/scripts/services/install.sh
+
+      - name: Setup Keycloak realm
+        run: nebari-operator/dev/scripts/services/keycloak/setup.sh
+
+      # ============================================================
+      # Install nebari-operator
+      # ============================================================
+      - name: Build and load nebari-operator image
+        run: |
+          cd nebari-operator
+          make docker-build IMG=nebari-operator:latest
+          kind load docker-image nebari-operator:latest --name rayserve-integration
+
+      - name: Install nebari-operator CRDs and deployment
+        run: |
+          cd nebari-operator
+          make install
+          make deploy IMG=nebari-operator:latest
+
+      - name: Wait for nebari-operator
+        run: |
+          kubectl wait --for=condition=available deployment/nebari-operator-controller-manager \
+            -n nebari-operator-system --timeout=120s
+
+      - name: Label default namespace for operator
+        run: kubectl label namespace default nebari.dev/managed=true --overwrite
+
+      # ============================================================
+      # Test: Ray Serve with NebariApp (no auth)
+      # ============================================================
+      - name: Update chart dependencies
+        run: helm dependency update chart/
+
+      - name: Deploy Ray Serve with NebariApp
+        run: |
+          helm install rayserve chart/ \
+            --set nebariapp.enabled=true \
+            --set nebariapp.hostname=rayserve.nebari.local \
+            --set nebariapp.dashboard.enabled=true \
+            --set nebariapp.dashboard.hostname=ray-dashboard.nebari.local \
+            --set ray-cluster.head.resources.requests.cpu=500m \
+            --set ray-cluster.head.resources.requests.memory=512Mi \
+            --set ray-cluster.head.resources.limits.cpu=1 \
+            --set ray-cluster.head.resources.limits.memory=1Gi \
+            --set ray-cluster.worker.replicas=0 \
+            --timeout 5m
+
+      - name: Wait for Ray head pod
+        run: kubectl wait --for=condition=ready pod -l ray.io/node-type=head --timeout=300s
+
+      - name: Verify NebariApp (serve)
+        run: kubectl wait --for=condition=Ready nebariapp/rayserve-nebari-rayserve --timeout=300s
+
+      - name: Verify NebariApp (dashboard)
+        run: kubectl wait --for=condition=Ready nebariapp/rayserve-nebari-rayserve-dashboard --timeout=300s
+
+      - name: Verify HTTPRoutes created
+        run: |
+          kubectl get httproute
+          echo ""
+          ROUTE_COUNT=$(kubectl get httproute -o name | wc -l)
+          if [ "$ROUTE_COUNT" -lt 2 ]; then
+            echo "Expected at least 2 HTTPRoutes, got $ROUTE_COUNT"
+            exit 1
+          fi
+
+      - name: Health check Ray Dashboard via port-forward
+        run: |
+          kubectl port-forward svc/rayserve-kuberay-head-svc 8265:8265 &
+          sleep 5
+          curl -sf http://localhost:8265/api/version
+          kill %1
+
+      # ============================================================
+      # Test: Upgrade to enable auth
+      # ============================================================
+      - name: Upgrade with auth enabled
+        run: |
+          helm upgrade rayserve chart/ \
+            --set nebariapp.enabled=true \
+            --set nebariapp.hostname=rayserve.nebari.local \
+            --set nebariapp.dashboard.enabled=true \
+            --set nebariapp.dashboard.hostname=ray-dashboard.nebari.local \
+            --set nebariapp.auth.enabled=true \
+            --wait --timeout 5m
+
+      - name: Verify SecurityPolicies created
+        run: |
+          kubectl get securitypolicy
+          echo ""
+          SP_COUNT=$(kubectl get securitypolicy -o name | wc -l)
+          if [ "$SP_COUNT" -lt 2 ]; then
+            echo "Expected at least 2 SecurityPolicies, got $SP_COUNT"
+            exit 1
+          fi
+
+      # ============================================================
+      # Cleanup
+      # ============================================================
+      - name: Cleanup
+        if: always()
+        run: helm uninstall rayserve --wait || true
+
+      # ============================================================
+      # Debug on failure
+      # ============================================================
+      - name: Debug info on failure
+        if: failure()
+        run: |
+          echo "=== NebariApps ==="
+          kubectl get nebariapp -o wide || true
+          echo ""
+          echo "=== NebariApp details ==="
+          kubectl describe nebariapp || true
+          echo ""
+          echo "=== HTTPRoutes ==="
+          kubectl get httproute -A || true
+          echo ""
+          echo "=== SecurityPolicies ==="
+          kubectl get securitypolicy -A -o wide || true
+          echo ""
+          echo "=== Pods ==="
+          kubectl get pods -A || true
+          echo ""
+          echo "=== Services ==="
+          kubectl get svc || true
+          echo ""
+          echo "=== Operator logs ==="
+          kubectl logs -n nebari-operator-system deployment/nebari-operator-controller-manager \
+            --tail=100 || true
+          echo ""
+          echo "=== Ray head logs ==="
+          kubectl logs -l ray.io/node-type=head --tail=50 || true
+          echo ""
+          echo "=== Events ==="
+          kubectl get events --sort-by=.lastTimestamp | tail -50 || true
