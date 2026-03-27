@@ -109,9 +109,15 @@ jobs:
       - name: Update chart dependencies
         run: helm dependency update chart/
 
+      - name: Install KubeRay operator (CRDs must exist before RayService)
+        run: |
+          helm install kuberay-operator chart/charts/kuberay-operator-*.tgz \
+            --wait --timeout 3m
+
       - name: Deploy Ray Serve with NebariApp
         run: |
           helm install rayserve chart/ \
+            --set kuberay-operator.enabled=false \
             --set nebariapp.enabled=true \
             --set nebariapp.hostname=rayserve.nebari.local \
             --set nebariapp.dashboard.enabled=true \
