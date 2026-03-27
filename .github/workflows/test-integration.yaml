@@ -116,15 +116,25 @@ jobs:
             --set nebariapp.hostname=rayserve.nebari.local \
             --set nebariapp.dashboard.enabled=true \
             --set nebariapp.dashboard.hostname=ray-dashboard.nebari.local \
-            --set ray-cluster.head.resources.requests.cpu=500m \
-            --set ray-cluster.head.resources.requests.memory=512Mi \
-            --set ray-cluster.head.resources.limits.cpu=1 \
-            --set ray-cluster.head.resources.limits.memory=1Gi \
-            --set ray-cluster.worker.replicas=0 \
+            --set head.resources.requests.cpu=500m \
+            --set head.resources.requests.memory=512Mi \
+            --set head.resources.limits.cpu=1 \
+            --set head.resources.limits.memory=1Gi \
+            --set worker.replicas=0 \
             --timeout 5m
 
       - name: Wait for Ray head pod
-        run: kubectl wait --for=condition=ready pod -l ray.io/node-type=head --timeout=300s
+        run: |
+          echo "Waiting for RayService to create pods..."
+          for i in $(seq 1 60); do
+            if kubectl get pod -l ray.io/node-type=head -o name 2>/dev/null | grep -q pod; then
+              echo "Head pod found"
+              break
+            fi
+            echo "  attempt $i/60..."
+            sleep 5
+          done
+          kubectl wait --for=condition=ready pod -l ray.io/node-type=head --timeout=300s
 
       - name: Verify NebariApp (serve)
         run: kubectl wait --for=condition=Ready nebariapp/rayserve-nebari-rayserve --timeout=300s
@@ -144,7 +154,7 @@ jobs:
 
       - name: Health check Ray Dashboard via port-forward
         run: |
-          kubectl port-forward svc/rayserve-kuberay-head-svc 8265:8265 &
+          kubectl port-forward svc/rayserve-nebari-rayserve-head-svc 8265:8265 &
           sleep 5
           curl -sf http://localhost:8265/api/version
           kill %1
@@ -185,6 +195,9 @@ jobs:
       - name: Debug info on failure
         if: failure()
         run: |
+          echo "=== RayService ==="
+          kubectl get rayservice -o yaml || true
+          echo ""
           echo "=== NebariApps ==="
           kubectl get nebariapp -o wide || true
           echo ""
