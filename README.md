@@ -95,12 +95,28 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
     retry:
       limit: 5
       backoff:
         duration: 5s
         factor: 2
         maxDuration: 3m
+  # The KubeRay controller modifies RayService and Service resources at
+  # runtime (adding selectors, status fields, etc.), causing a permanent
+  # OutOfSync state without these ignore rules.
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      jsonPointers:
+        - /spec/selector
+        - /spec/clusterIP
+        - /spec/clusterIPs
+    - group: ray.io
+      kind: RayService
+      jsonPointers:
+        - /spec/rayClusterConfig
+        - /status
 ```
 
 **Important:**
