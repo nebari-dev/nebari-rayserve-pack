@@ -61,7 +61,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: foundational
+  project: default
   source:
     repoURL: https://github.com/nebari-dev/nebari-rayserve-pack.git
     targetRevision: main
