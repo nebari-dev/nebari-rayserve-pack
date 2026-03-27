@@ -171,6 +171,7 @@ jobs:
       - name: Upgrade with auth enabled
         run: |
           helm upgrade rayserve chart/ \
+            --set kuberay-operator.enabled=false \
             --set nebariapp.enabled=true \
             --set nebariapp.hostname=rayserve.nebari.local \
             --set nebariapp.dashboard.enabled=true \
