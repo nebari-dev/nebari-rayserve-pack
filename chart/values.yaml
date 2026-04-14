@@ -7,7 +7,7 @@ nebariapp:
   enabled: false
   # hostname: rayserve.nebari.example.com  # Required when serve.enabled is true
   serve:
-    enabled: true  # Set to false to keep the serve endpoint internal-only
+    enabled: false  # Set to true and provide nebariapp.hostname to expose the serve endpoint externally
   dashboard:
     enabled: true
     # hostname: ray-dashboard.nebari.example.com  # Separate hostname for dashboard
