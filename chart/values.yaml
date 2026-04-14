@@ -15,7 +15,7 @@ nebariapp:
       enabled: false
       displayName: "Ray Dashboard"
       description: "Monitor and manage Ray clusters and Serve deployments"
-      icon: "https://raw.githubusercontent.com/ray-project/ray/master/doc/source/images/ray_header_logo.png"
+      icon: "https://raw.githubusercontent.com/ray-project/ray/master/doc/source/images/serve.svg"
       category: "Data Science"
       priority: 20
       healthCheck:
