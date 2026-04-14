@@ -11,6 +11,18 @@ nebariapp:
   dashboard:
     enabled: true
     # hostname: ray-dashboard.nebari.example.com  # Separate hostname for dashboard
+    landingPage:
+      enabled: false
+      displayName: "Ray Dashboard"
+      description: "Monitor and manage Ray clusters and Serve deployments"
+      icon: "https://raw.githubusercontent.com/ray-project/ray/master/doc/source/images/ray_header_logo.png"
+      category: "Data Science"
+      priority: 20
+      healthCheck:
+        enabled: false
+        path: /api/component_activities
+        intervalSeconds: 30
+        timeoutSeconds: 5
   service:
     name: ""   # Defaults to <release>-<chart>-serve-svc (serve) or -head-svc (dashboard)
     servePort: 8000
