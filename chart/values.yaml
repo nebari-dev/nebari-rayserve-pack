@@ -19,7 +19,7 @@ nebariapp:
       category: "Data Science"
       priority: 20
       healthCheck:
-        enabled: false
+        enabled: true
         path: /api/component_activities
         intervalSeconds: 30
         timeoutSeconds: 5
