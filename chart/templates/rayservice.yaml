@@ -23,6 +23,9 @@ spec:
         dashboard-host: "0.0.0.0"
       template:
         spec:
+          {{- with .Values.head.runtimeClassName }}
+          runtimeClassName: {{ . }}
+          {{- end }}
           containers:
             - name: ray-head
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -49,6 +52,9 @@ spec:
         rayStartParams: {}
         template:
           spec:
+            {{- with .Values.worker.runtimeClassName }}
+            runtimeClassName: {{ . }}
+            {{- end }}
             containers:
               - name: ray-worker
                 image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

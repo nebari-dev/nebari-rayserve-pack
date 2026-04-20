@@ -211,11 +211,13 @@ Key values in `chart/values.yaml`:
 | `image.tag` | `2.43.0` | Ray version |
 | `head.resources.requests.cpu` | `1` | Head node CPU request |
 | `head.resources.requests.memory` | `2Gi` | Head node memory request |
+| `head.runtimeClassName` | - | Runtime class for head pod (e.g., `nvidia` for GPU) |
 | `worker.replicas` | `1` | Number of worker nodes |
 | `worker.minReplicas` | `1` | Min workers (for autoscaling) |
 | `worker.maxReplicas` | `1` | Max workers (for autoscaling) |
 | `worker.resources.requests.cpu` | `1` | Worker CPU request |
 | `worker.resources.requests.memory` | `2Gi` | Worker memory request |
+| `worker.runtimeClassName` | - | Runtime class for worker pods (e.g., `nvidia` for GPU) |
 
 ### Serve Applications
 
