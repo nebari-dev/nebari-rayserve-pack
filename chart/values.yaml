@@ -75,6 +75,7 @@ image:
 # Ray Head
 # =============================================================================
 head:
+  # runtimeClassName: nvidia  # Set for GPU-enabled head nodes
   containerEnv: []
   resources:
     limits:
@@ -91,6 +92,7 @@ worker:
   replicas: 1
   minReplicas: 1
   maxReplicas: 1
+  # runtimeClassName: nvidia  # Set for GPU-enabled worker nodes
   containerEnv: []
   resources:
     limits:
