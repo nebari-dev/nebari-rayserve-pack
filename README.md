@@ -195,10 +195,11 @@ Key values in `chart/values.yaml`:
 | Value | Default | Description |
 |-------|---------|-------------|
 | `nebariapp.enabled` | `false` | Create NebariApp resources for routing/TLS/auth |
-| `nebariapp.serve.enabled` | `true` | Expose the serve endpoint externally (set `false` to keep internal-only) |
+| `nebariapp.serve.enabled` | `false` | Expose the serve endpoint externally (set `true` and provide `nebariapp.hostname`) |
 | `nebariapp.hostname` | - | Hostname for the Ray Serve endpoint (required when serve.enabled) |
 | `nebariapp.dashboard.enabled` | `true` | Create a separate NebariApp for the Ray Dashboard |
 | `nebariapp.dashboard.hostname` | - | Hostname for the Ray Dashboard (required when dashboard enabled) |
+| `nebariapp.dashboard.landingPage.icon` | Ray Serve SVG (data URI) | Landing page icon (data URI or URL) |
 | `nebariapp.auth.enabled` | `false` | Enable OIDC authentication via Keycloak |
 | `nebariapp.auth.redirectURI` | `/oauth2/callback` | OAuth callback path (Envoy Gateway rejects `/`) |
 | `nebariapp.gateway` | `public` | Gateway to use (`public` or `internal`) |
