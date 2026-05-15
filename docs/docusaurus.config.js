@@ -42,13 +42,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          // Render the markdown files from /docs (one level up from this
-          // website/ directory) — same source as the GitHub view.
-          path: '../docs',
+          // Markdown content lives in ./docs/ (the Docusaurus default).
+          // Mirrors the nebari-docs layout where the repo's docs/ directory
+          // is the Docusaurus root and docs/docs/ holds the prose.
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/nebari-dev/nebari-rayserve-pack/edit/main/',
+            'https://github.com/nebari-dev/nebari-rayserve-pack/edit/main/docs/',
         },
         blog: false,
         theme: {
