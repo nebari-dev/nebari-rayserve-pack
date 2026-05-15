@@ -1,4 +1,6 @@
 ---
+title: Using Ray Serve
+description: Connect to the cluster from a Jupyter notebook, deploy a Serve application, and troubleshoot the common failure modes.
 sidebar_position: 2
 ---
 
@@ -20,12 +22,16 @@ behind an HTTP endpoint. It is the right tool when you have a trained model
 (or a chain of models) and you want to call it over HTTP from inside or
 outside the cluster.
 
-**It is not a general Ray compute cluster.** Ray Data, Ray Tune, and Ray Train
-workloads will technically run on this deployment, but the chart is tuned for
-serving: workers come up sized for inference, the dashboard's landing page
-is wired for the Serve REST API, and the chart ships a `serveConfigV2` even
-when no applications are declared. For interactive parallel compute on
-Nebari, use the Dask gateway from the data-science pack instead.
+:::warning[Not a general Ray compute cluster]
+
+Ray Data, Ray Tune, and Ray Train workloads will technically run on this
+deployment, but the chart is tuned for serving: workers come up sized for
+inference, the dashboard's landing page is wired for the Serve REST API,
+and the chart ships a `serveConfigV2` even when no applications are
+declared. For interactive parallel compute on Nebari, use the Dask gateway
+from the data-science pack instead.
+
+:::
 
 The deployment is backed by the **RayService CRD** managed by KubeRay — you
 do not start or stop the Ray cluster from your notebook. It exists as a
@@ -82,9 +88,14 @@ they do **not** wait for a Serve application to be deployed.
 
 ## Step 1 — Prepare your notebook environment
 
-The Ray client uses a binary protocol that is sensitive to version skew. Your
-notebook's Ray version and Python minor version must match the cluster, or
-`ray.init(...)` will fail with an opaque error or hang.
+:::warning[Version match required]
+
+The Ray client uses a binary protocol that is sensitive to version skew.
+Your notebook's Ray version **and** Python minor version must match the
+cluster, or `ray.init(...)` will fail with an opaque error or hang. This
+is the most common end-user failure mode.
+
+:::
 
 The default chart deploys **Ray 2.43.0** on **Python 3.9**. Confirm against
 the running cluster (an operator can run this):
@@ -115,8 +126,12 @@ Without Nebi, install the same versions into your kernel directly:
 pip install "ray[serve]==2.43.*"
 ```
 
-**Note:** install `ray[serve]`, not bare `ray`. The Serve extras pull in the
-HTTP and proxy components needed by `ray.serve`.
+:::note
+
+Install `ray[serve]`, not bare `ray`. The Serve extras pull in the HTTP
+and proxy components needed by `ray.serve`.
+
+:::
 
 ## Step 2 — Connect from your notebook
 
@@ -276,10 +291,14 @@ curl https://rayserve.your-cluster.example.com/hello
 The first request returns a 302 to Keycloak; after login, a session cookie
 is set and subsequent requests pass through.
 
-**Important:** the OIDC flow only works for browser clients that can handle
-redirects and cookies. Service-to-service callers (other notebooks,
-inference pipelines) should stay on the in-cluster service name — they
-bypass the gateway entirely and need no auth.
+:::warning[Browser clients only]
+
+The OIDC flow only works for clients that can handle redirects and
+cookies. Service-to-service callers (other notebooks, inference
+pipelines) should stay on the in-cluster service name — they bypass
+the gateway entirely and need no auth.
+
+:::
 
 _TBD — the actual external hostname for this specific deployment, once
 configured by the operator._

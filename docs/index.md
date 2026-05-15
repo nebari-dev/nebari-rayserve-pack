@@ -1,4 +1,6 @@
 ---
+title: Nebari Ray Serve Pack
+description: End-user documentation for the Nebari Ray Serve software pack.
 sidebar_position: 1
 ---
 
