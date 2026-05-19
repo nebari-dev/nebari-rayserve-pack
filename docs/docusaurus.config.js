@@ -48,7 +48,7 @@ const config = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/nebari-dev/nebari-rayserve-pack/edit/main/docs/',
+            'https://github.com/nebari-dev/nebari-rayserve-pack/edit/main/docs/docs/',
         },
         blog: false,
         theme: {
