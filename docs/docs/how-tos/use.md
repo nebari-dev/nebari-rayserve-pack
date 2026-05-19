@@ -1,10 +1,10 @@
 ---
-title: Using Ray Serve
+title: Use Ray Serve from a notebook
 description: Connect to the cluster from a Jupyter notebook, deploy a Serve application, and troubleshoot the common failure modes.
-sidebar_position: 3
+sidebar_position: 1
 ---
 
-# Using Ray Serve
+# Use Ray Serve from a notebook
 
 End-user guide for the Nebari Ray Serve pack. This walks through connecting to
 the deployed Ray cluster from a Jupyter notebook, deploying a model, watching
@@ -235,6 +235,14 @@ After running the Hello world example above, the Serve tab shows:
 - One deployment `Hello` with status `HEALTHY` and one active replica.
 - Recent request rate and latency, refreshed every few seconds.
 
+:::info[Screenshot placeholder]
+
+A screenshot of the Ray Dashboard's Serve tab showing a healthy `hello`
+application would go here. Capture after running the quickstart against
+a fresh cluster.
+
+:::
+
 If a deployment stays in `DEPLOYING` for more than a minute, the pod is
 likely stuck pulling the image or waiting for resources — check
 `kubectl get pods -n rayserve` and `kubectl describe pod ...` for the
@@ -261,7 +269,7 @@ This is operator territory. Your job as an end user:
 3. Hand the working `import_path` and dependency list off to your operator,
    who bakes them into the Ray image and adds an entry to `serveApplications`.
 
-See [Deploying Ray Serve → Production](./deploying-ray-serve#production-custom-image-with-model-code-baked-in)
+See [Deploy → Production](../get-started/deploy#production-custom-image-with-model-code-baked-in)
 for the operator-side detail and the
 upstream [Ray Serve production guide](https://docs.ray.io/en/latest/serve/production-guide/index.html)
 for image-build recipes and rollout policies.
@@ -295,6 +303,15 @@ curl https://rayserve.your-cluster.example.com/hello
 The first request returns a 302 to Keycloak; after login, a session cookie
 is set and subsequent requests pass through.
 
+:::info[Screenshot placeholder]
+
+A screenshot of the Keycloak login screen presented when first hitting the
+external Ray Serve endpoint would go here. Capture against the deployment's
+actual Keycloak realm so the branding and identity-provider list match what
+real users will see.
+
+:::
+
 :::warning[Browser clients only]
 
 The OIDC flow only works for clients that can handle redirects and
@@ -305,7 +322,8 @@ the gateway entirely and need no auth.
 :::
 
 Ask your operator for the value they set in `nebariapp.hostname` — that's
-the URL external clients should hit.
+the URL external clients should hit. The full Troubleshooting index for
+external access lives at [Troubleshoot](./troubleshoot).
 
 ## Troubleshooting
 

@@ -22,7 +22,7 @@ const config = {
   organizationName: 'nebari-dev',
   projectName: 'nebari-rayserve-pack',
 
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
   i18n: {
@@ -47,6 +47,8 @@ const config = {
           // is the Docusaurus root and docs/docs/ holds the prose.
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
+          sidebarCollapsible: true,
+          showLastUpdateTime: true,
           editUrl:
             'https://github.com/nebari-dev/nebari-rayserve-pack/edit/main/docs/docs/',
         },
@@ -61,6 +63,12 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      docs: {
+        sidebar: {
+          hideable: true,
+          autoCollapseCategories: true,
+        },
+      },
       navbar: {
         title: 'Nebari Ray Serve Pack',
         logo: {
@@ -81,10 +89,9 @@ const config = {
           {
             title: 'Docs',
             items: [
-              {
-                label: 'Using Ray Serve',
-                to: '/using-ray-serve',
-              },
+              {label: 'Get started', to: '/get-started/'},
+              {label: 'How-to guides', to: '/how-tos/'},
+              {label: 'Reference', to: '/references/'},
             ],
           },
           {

@@ -1,14 +1,14 @@
 ---
-title: Deploying Ray Serve
+title: Deploy the pack
 description: Install the Ray Serve pack on a standalone cluster or via ArgoCD on Nebari, then configure routing, TLS, OIDC auth, and Ray cluster sizing.
 sidebar_position: 2
 ---
 
-# Deploying Ray Serve
+# Deploy the pack
 
 This guide is for **operators** installing the pack on a Kubernetes cluster.
 End users connecting to an already-deployed cluster should read
-[Using Ray Serve](./using-ray-serve) instead.
+[Use Ray Serve](../how-tos/use) instead.
 
 The pack deploys:
 
@@ -164,9 +164,9 @@ internal-only.
 
 ## Configuration
 
-Full reference is in
-[`chart/values.yaml`](https://github.com/nebari-dev/nebari-rayserve-pack/blob/main/chart/values.yaml).
-The most-edited knobs:
+The full reference — every chart value with its type, default, and
+description — lives at [Reference → `values.yaml` reference](../references/values).
+The tables below cover the knobs you'll most often touch when installing.
 
 ### NebariApp / external access
 
@@ -292,6 +292,15 @@ kubectl describe nebariapp -n rayserve
 You want `RoutingReady`, `TLSReady`, and (when auth is on) `AuthReady`
 all `True`.
 
+:::info[Screenshot placeholder]
+
+A screenshot of `kubectl describe nebariapp` output showing all
+conditions `True` against a real deployment would help readers
+recognise the success state. Equally useful: a screenshot of the Nebari
+landing page tile for the Ray Dashboard, when `landingPage.enabled: true`.
+
+:::
+
 ## Operator troubleshooting
 
 ### ArgoCD shows permanent `OutOfSync`
@@ -349,9 +358,12 @@ chart's defaults in place. See the comments in `values.yaml`.
 
 ## Next steps
 
-- **End users** → [Using Ray Serve](./using-ray-serve) — how to connect a
+- **End users** → [Use Ray Serve](../how-tos/use) — how to connect a
   notebook, deploy a model, and read the dashboard.
-- **Full chart reference** → [`chart/values.yaml`](https://github.com/nebari-dev/nebari-rayserve-pack/blob/main/chart/values.yaml)
-  — every option with inline comments.
+- **Full chart reference** → [`values.yaml` reference](../references/values) —
+  every option with type, default, and description, sourced from
+  [`chart/values.yaml`](https://github.com/nebari-dev/nebari-rayserve-pack/blob/main/chart/values.yaml).
+- **How it fits together** → [Architecture](../references/architecture) —
+  the Kubernetes resources the chart creates and how they interact.
 - **Upstream docs** → [Ray Serve production guide](https://docs.ray.io/en/latest/serve/production-guide/index.html),
   [KubeRay RayService guide](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started/rayservice-quick-start.html).
