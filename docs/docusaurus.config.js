@@ -10,8 +10,8 @@ const config = {
   tagline: 'Deploy Ray Serve on Nebari',
   favicon: 'img/favicon.ico',
 
-  url: 'https://nebari-dev.github.io',
-  baseUrl: '/nebari-rayserve-pack/',
+  url: 'https://nebari-rayserve-pack.netlify.app',
+  baseUrl: '/',
 
   organizationName: 'nebari-dev',
   projectName: 'nebari-rayserve-pack',
