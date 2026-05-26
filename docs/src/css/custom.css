@@ -159,3 +159,47 @@ h6 {
 [data-theme="dark"] h6 {
   color: var(--ifm-color-white-dark);
 }
+
+/* ---------------------------------------------------------------------------
+   Color-mode toggle — match Nebari UI (purple-bordered icon button).
+   Light mode: dark crescent moon icon, soft purple border.
+   Dark mode:  gold sun icon, vivid purple border.
+   --------------------------------------------------------------------------- */
+
+.navbar [class*="colorModeToggle"] {
+  margin-right: 6px;
+}
+
+.navbar [class*="colorModeToggle"] button,
+.navbar button[class*="colorModeToggle"] {
+  border: 2px solid var(--global-colors-purple);
+  border-radius: 8px;
+  padding: 6px;
+  height: 36px;
+  width: 36px;
+  background-color: transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.navbar [class*="colorModeToggle"] button:hover,
+.navbar button[class*="colorModeToggle"]:hover {
+  background-color: rgba(120, 52, 214, 0.12);
+}
+
+.navbar [class*="colorModeToggle"] button:focus-visible,
+.navbar button[class*="colorModeToggle"]:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.navbar [class*="colorModeToggle"] button svg {
+  width: 18px;
+  height: 18px;
+  color: var(--global-colors-purple);
+}
+
+/* Dark mode: bright sun icon */
+html[data-theme="dark"] .navbar [class*="colorModeToggle"] button svg {
+  color: var(--global-colors-gold);
+}
