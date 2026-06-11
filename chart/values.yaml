@@ -73,9 +73,9 @@ serve:
 serveApplications: []
 
 # =============================================================================
-# Organisation CA Bundle Injection
+# Organization CA Bundle Injection
 # =============================================================================
-# Mount an organisation-managed CA bundle into the Ray head and worker pods
+# Mount an organization-managed CA bundle into the Ray head and worker pods
 # so outbound HTTPS calls (model registries, dataset URLs, Hugging Face hub,
 # S3, etc.) succeed in environments running a TLS-inspecting proxy
 # (Netskope, Zscaler, BlueCoat, internal corporate CAs, etc.).

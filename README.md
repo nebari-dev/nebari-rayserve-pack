@@ -225,9 +225,9 @@ Key values in `chart/values.yaml`:
 |-------|---------|-------------|
 | `serveApplications` | `[]` | Declarative Serve applications (see [Ray Serve config](https://docs.ray.io/en/latest/serve/production-guide/config.html)) |
 
-### Organisation CA Bundle Injection
+### Organization CA Bundle Injection
 
-For deployments behind a TLS-inspecting proxy (Netskope, Zscaler, BlueCoat, internal corporate CAs, etc.), point `orgCABundle.secretName` at a Secret containing your organisation's root CA. The chart adds an initContainer that builds a combined CA bundle (system trust + org CA), mounts it into the head and worker pods, and sets `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE` / `CURL_CA_BUNDLE` so any TLS client honouring those env vars (requests, urllib3, curl, git, pip, `torch.hub`, etc.) trusts the proxy's re-signed certs.
+For deployments behind a TLS-inspecting proxy (Netskope, Zscaler, BlueCoat, internal corporate CAs, etc.), point `orgCABundle.secretName` at a Secret containing your organization's root CA. The chart adds an initContainer that builds a combined CA bundle (system trust + org CA), mounts it into the head and worker pods, and sets `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE` / `CURL_CA_BUNDLE` so any TLS client honoring those env vars (requests, urllib3, curl, git, pip, `torch.hub`, etc.) trusts the proxy's re-signed certs.
 
 | Value | Default | Description |
 |-------|---------|-------------|
@@ -260,7 +260,7 @@ client = httpx.Client(verify=ssl.create_default_context())
 # or per-call: httpx.get(url, verify=ssl.create_default_context())
 ```
 
-`ssl.create_default_context()` with no `cafile=` honours `SSL_CERT_FILE` / `SSL_CERT_DIR` per the standard OpenSSL convention, so it picks up the bundle this chart injected. Other Python HTTP clients (`requests`, `urllib3`, stdlib `urllib`) and most non-Python TLS tooling honour the env vars automatically.
+`ssl.create_default_context()` with no `cafile=` honors `SSL_CERT_FILE` / `SSL_CERT_DIR` per the standard OpenSSL convention, so it picks up the bundle this chart injected. Other Python HTTP clients (`requests`, `urllib3`, stdlib `urllib`) and most non-Python TLS tooling honor the env vars automatically.
 
 ## Architecture
 

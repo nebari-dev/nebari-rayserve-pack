@@ -63,7 +63,7 @@ Ray serve service name - RayService creates a service named <rayservice-name>-se
 {{- end }}
 
 {{/*
-Whether organisation CA bundle injection is enabled.
+Whether organization CA bundle injection is enabled.
 */}}
 {{- define "nebari-rayserve.orgCABundle.enabled" -}}
 {{- if and .Values.orgCABundle .Values.orgCABundle.secretName -}}
@@ -125,7 +125,7 @@ org-ca Secret. Renders empty when orgCABundle injection is disabled.
 
 {{/*
 Container env entries pointing the standard OpenSSL trust-store env vars
-at the combined-CA bundle. Anything that honours SSL_CERT_FILE /
+at the combined-CA bundle. Anything that honors SSL_CERT_FILE /
 REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE picks it up automatically.
 Renders empty when orgCABundle injection is disabled.
 */}}
