@@ -127,6 +127,9 @@ org-ca ConfigMap. Renders empty when orgCABundle injection is disabled.
 Container env entries pointing the standard OpenSSL trust-store env vars
 at the combined-CA bundle. Anything that honors SSL_CERT_FILE /
 REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE picks it up automatically.
+GIT_SSL_CAINFO is set separately because git's libcurl ignores the three
+above and reads only GIT_SSL_CAINFO — without it `pip install git+https://...`
+and other git-over-HTTPS calls fail certificate verification.
 Renders empty when orgCABundle injection is disabled.
 */}}
 {{- define "nebari-rayserve.orgCABundle.env" -}}
@@ -136,6 +139,8 @@ Renders empty when orgCABundle injection is disabled.
 - name: REQUESTS_CA_BUNDLE
   value: /shared/combined-ca.crt
 - name: CURL_CA_BUNDLE
+  value: /shared/combined-ca.crt
+- name: GIT_SSL_CAINFO
   value: /shared/combined-ca.crt
 {{- end }}
 {{- end }}
